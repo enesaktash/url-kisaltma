@@ -1,0 +1,15 @@
+{
+  "name": "tik",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kısa bağlantı üretir ve tıklamaları sayar.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute tik --local --file=./schema.sql",
+    "db:uzak": "wrangler d1 execute tik --remote --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

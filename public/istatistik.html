@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tık — Bağlantı istatistiği</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#08080b">
+<style>
+/* ---------------------------------------------------------------
+   Tık — istatistik sayfası
+   Harici istek yok. Tema tanıtım sayfasıyla aynı.
+   --------------------------------------------------------------- */
+
+:root{
+  --bg:#08080b; --bg-2:#0e0e13; --card:#111117; --card-2:#15151c;
+  --line:#1f1f28; --line-2:#2c2c38;
+  --fg:#f4f1eb; --fg-dim:#a8a299; --fg-faint:#7d766c;
+  --a1:#ffb340; --a2:#ff6b4a; --a3:#f23d8f; --ok:#4ade9a;
+  --grad: linear-gradient(100deg, var(--a1) 0%, var(--a2) 46%, var(--a3) 100%);
+  --sans:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Segoe UI Mono","Roboto Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --pad:clamp(1.15rem,4.5vw,3rem);
+  --maxw:61rem;
+  --r:16px;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--sans); font-size:1rem; line-height:1.6;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+.kap{ width:100%; max-width:var(--maxw); margin-inline:auto; padding-inline:var(--pad); }
+
+/* ---- üst çubuk ---- */
+.ust{ border-bottom:1px solid var(--line); background:var(--bg-2); }
+.ust .ic{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding-block:.8rem; }
+.marka{ display:inline-flex; align-items:center; gap:.6rem; color:var(--fg); text-decoration:none; font-weight:700; letter-spacing:-.02em; }
+.logo{ width:28px; height:28px; border-radius:9px; background:var(--grad); display:grid; place-items:center; flex:none; }
+.geri{ color:var(--fg-dim); text-decoration:none; font-size:.875rem; }
+.geri:hover{ color:var(--fg); }
+
+main{ padding-block:clamp(2rem,5vw,3.25rem) clamp(3rem,7vw,4.5rem); }
+
+.etiket{ font-family:var(--mono); font-size:.6875rem; letter-spacing:.16em; text-transform:uppercase; color:var(--a2); margin:0; }
+h1{ font-size:clamp(1.5rem, 1.2rem + 1.4vw, 2.1rem); letter-spacing:-.035em; font-weight:800; margin:.6rem 0 0; overflow-wrap:anywhere; }
+.hedef{ margin:.6rem 0 0; color:var(--fg-dim); font-size:.9375rem; overflow-wrap:anywhere; }
+.hedef a{ color:var(--fg-dim); }
+.kisa-bag{ font-family:var(--mono); color:var(--fg); }
+
+/* ---- durum kutuları ---- */
+.durumlar{ display:grid; gap:1rem; grid-template-columns:repeat(2,1fr); margin-top:clamp(1.75rem,4vw,2.5rem); }
+@media (min-width:46rem){ .durumlar{ grid-template-columns:repeat(4,1fr); } }
+.kutu{ border:1px solid var(--line); border-radius:var(--r); background:var(--card); padding:1.15rem 1.25rem; }
+.kutu .ad{ font-family:var(--mono); font-size:.6875rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fg-faint); }
+.kutu .deger{ font-size:1.75rem; font-weight:800; letter-spacing:-.04em; margin-top:.35rem; line-height:1.1; }
+.kutu.oncelikli{ border-color:var(--line-2); }
+.kutu.oncelikli .deger{
+  font-size:clamp(2.25rem, 1.8rem + 1.8vw, 2.9rem);
+  background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.kutu .alt{ font-size:.8125rem; color:var(--fg-faint); margin-top:.2rem; }
+
+/* ---- panel ---- */
+.panel{
+  margin-top:clamp(1.75rem,4vw,2.5rem);
+  border:1px solid var(--line); border-radius:var(--r);
+  background:var(--card); padding:clamp(1.25rem,3.5vw,1.75rem);
+}
+.panel-bas{ display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:.75rem; margin-bottom:1.5rem; }
+.panel-bas h2{ font-size:1.0625rem; font-weight:700; letter-spacing:-.02em; margin:0; }
+.panel-bas .aciklama{ font-size:.8125rem; color:var(--fg-faint); margin:.2rem 0 0; }
+.dugme{
+  font-family:var(--mono); font-size:.75rem; color:var(--fg-dim);
+  background:transparent; border:1px solid var(--line-2); border-radius:8px;
+  padding:.4rem .75rem; cursor:pointer;
+}
+.dugme:hover{ color:var(--fg); border-color:var(--a2); }
+
+/* ---- grafik: son 30 gün, tek seri, dikey sütun ---- */
+.grafik-sarmal{ position:relative; }
+.grafik{
+  position:relative; display:flex; align-items:flex-end; gap:2px;
+  height:190px; padding-left:2.75rem;
+  border-bottom:1px solid var(--line-2);
+}
+/* geri planda duran ızgara çizgileri */
+.izgara{ position:absolute; inset:0 0 0 2.75rem; pointer-events:none; }
+.izgara span{ position:absolute; left:0; right:0; border-top:1px dashed rgba(255,255,255,.05); }
+.izgara b{
+  position:absolute; left:-2.75rem; transform:translateY(-50%);
+  font-family:var(--mono); font-size:.6875rem; color:var(--fg-faint); font-weight:400;
+}
+.sutun{
+  flex:1 1 0; min-width:0; height:100%;
+  display:flex; align-items:flex-end; position:relative; cursor:default;
+}
+.sutun i{
+  display:block; width:100%; border-radius:4px 4px 0 0;
+  background:var(--a2); min-height:0;
+}
+.sutun.bos i{ background:var(--line); height:2px !important; border-radius:2px; }
+.sutun:hover i{ background:var(--a1); }
+.sutun::after{ content:""; position:absolute; inset:0; }
+
+.x-ekseni{
+  display:flex; justify-content:space-between; padding-left:2.75rem;
+  margin-top:.6rem; font-family:var(--mono); font-size:.6875rem; color:var(--fg-faint);
+}
+
+.ipucu{
+  position:absolute; z-index:5; pointer-events:none; opacity:0;
+  transform:translate(-50%,-100%);
+  background:#1b1b24; border:1px solid var(--line-2); border-radius:8px;
+  padding:.45rem .6rem; font-family:var(--mono); font-size:.75rem;
+  color:var(--fg); white-space:nowrap; transition:opacity .12s;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
+}
+.ipucu.acik{ opacity:1; }
+.ipucu .sayi{ color:var(--a1); font-weight:700; }
+
+/* ---- tablo görünümü ---- */
+.tablo-sarmal{ overflow-x:auto; margin-top:1.25rem; }
+table{ border-collapse:collapse; width:100%; font-size:.875rem; }
+th,td{ text-align:left; padding:.5rem .75rem; border-bottom:1px solid var(--line); white-space:nowrap; }
+th{ font-family:var(--mono); font-size:.6875rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); font-weight:700; }
+td.sayi{ text-align:right; font-family:var(--mono); }
+
+/* ---- kırılım listeleri ---- */
+.kirilimlar{ display:grid; gap:1rem; grid-template-columns:1fr; }
+@media (min-width:46rem){ .kirilimlar{ grid-template-columns:1fr 1fr; } }
+.liste{ list-style:none; margin:0; padding:0; }
+.liste li{ padding:.55rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.liste li:last-child{ border-bottom:0; }
+.liste .satir{ display:flex; justify-content:space-between; gap:1rem; font-size:.875rem; }
+.liste .ad{ color:var(--fg); overflow-wrap:anywhere; }
+.liste .n{ font-family:var(--mono); color:var(--fg-dim); flex:none; }
+.liste .cubuk{ height:4px; border-radius:99px; background:var(--line); margin-top:.4rem; overflow:hidden; }
+.liste .cubuk i{ display:block; height:100%; border-radius:99px; background:rgba(255,107,74,.65); }
+
+.bos-durum{ color:var(--fg-faint); font-size:.875rem; margin:0; }
+
+/* ---- yükleniyor / hata ---- */
+.mesaj{
+  border:1px solid var(--line-2); border-left:2px solid var(--a2);
+  border-radius:var(--r); background:var(--card);
+  padding:1.25rem 1.4rem; margin-top:2rem;
+}
+.mesaj h2{ margin:0 0 .5rem; font-size:1.0625rem; }
+.mesaj p{ margin:0; color:var(--fg-dim); font-size:.9375rem; }
+.mesaj a{ color:var(--a2); }
+
+[hidden]{ display:none !important; }
+
+footer{
+  border-top:1px solid var(--line); background:var(--bg-2);
+  padding-block:2rem; font-size:.8125rem; color:var(--fg-faint);
+}
+</style>
+</head>
+<body>
+
+<header class="ust">
+  <div class="kap ic">
+    <a class="marka" href="/">
+      <span class="logo" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 18 18" fill="none">
+          <path d="M7 11.5 11 6.5" stroke="#160b06" stroke-width="1.9" stroke-linecap="round"/>
+          <path d="M9.6 4.4 11 3a3.4 3.4 0 0 1 4.8 4.8l-1.4 1.4" stroke="#160b06" stroke-width="1.9" stroke-linecap="round"/>
+          <path d="M8.4 13.6 7 15a3.4 3.4 0 0 1-4.8-4.8l1.4-1.4" stroke="#160b06" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Tık
+    </a>
+    <a class="geri" href="/">Yeni bağlantı kısalt</a>
+  </div>
+</header>
+
+<main class="kap">
+
+  <p class="mesaj" id="yukleniyor">Yükleniyor...</p>
+
+  <div class="mesaj" id="hata" hidden>
+    <h2 id="hataBaslik">Bu istatistik bağlantısı geçersiz</h2>
+    <p id="hataMetin">
+      Adresteki anahtar eksik ya da yanlış. İstatistiği yalnızca bağlantıyı
+      oluştururken verilen gizli adresle görebilirsin.
+      <a href="/">Yeni bir bağlantı kısalt</a>.
+    </p>
+  </div>
+
+  <div id="icerik" hidden>
+
+    <p class="etiket">Bağlantı istatistiği</p>
+    <h1 id="baslik"></h1>
+    <p class="hedef">
+      <span class="kisa-bag" id="kisaBag"></span>
+      &nbsp;&rarr;&nbsp;
+      <a id="hedefBag" href="#" rel="noopener noreferrer" target="_blank"></a>
+    </p>
+
+    <div class="durumlar">
+      <div class="kutu oncelikli">
+        <span class="ad">Toplam tıklama</span>
+        <div class="deger" id="dToplam">0</div>
+        <div class="alt">bugüne kadar</div>
+      </div>
+      <div class="kutu">
+        <span class="ad">Son 7 gün</span>
+        <div class="deger" id="dHafta">0</div>
+        <div class="alt" id="dHaftaAlt">&nbsp;</div>
+      </div>
+      <div class="kutu">
+        <span class="ad">Bugün</span>
+        <div class="deger" id="dBugun">0</div>
+        <div class="alt">&nbsp;</div>
+      </div>
+      <div class="kutu">
+        <span class="ad">Oluşturuldu</span>
+        <div class="deger" id="dTarih" style="font-size:1.25rem">&mdash;</div>
+        <div class="alt" id="dYas">&nbsp;</div>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-bas">
+        <div>
+          <h2>Son 30 günün günlük tıklaması</h2>
+          <p class="aciklama" id="grafikAciklama">&nbsp;</p>
+        </div>
+        <button class="dugme" type="button" id="tabloDugme" aria-expanded="false">Tabloyu göster</button>
+      </div>
+
+      <div class="grafik-sarmal">
+        <div class="grafik" id="grafik" role="img" aria-labelledby="grafikOzet">
+          <div class="izgara" id="izgara" aria-hidden="true"></div>
+        </div>
+        <div class="ipucu" id="ipucu" aria-hidden="true"></div>
+      </div>
+      <div class="x-ekseni" id="xEkseni"></div>
+      <p class="bos-durum" id="grafikOzet" style="margin-top:1rem"></p>
+
+      <div class="tablo-sarmal" id="tabloSarmal" hidden>
+        <table>
+          <caption class="gizli" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Günlük tıklama sayıları</caption>
+          <thead><tr><th scope="col">Gün</th><th scope="col" style="text-align:right">Tıklama</th></tr></thead>
+          <tbody id="tabloGovde"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="kirilimlar" style="margin-top:1rem">
+      <section class="panel" style="margin-top:0">
+        <div class="panel-bas"><h2>Ülke</h2></div>
+        <ul class="liste" id="ulkeler"></ul>
+        <p class="bos-durum" id="ulkelerBos" hidden>Henüz veri yok.</p>
+      </section>
+      <section class="panel" style="margin-top:0">
+        <div class="panel-bas"><h2>Yönlendiren site</h2></div>
+        <ul class="liste" id="yonlendirenler"></ul>
+        <p class="bos-durum" id="yonlendirenlerBos" hidden>Henüz veri yok.</p>
+      </section>
+    </div>
+
+    <p class="bos-durum" style="margin-top:1.5rem">
+      Ziyaretçilerin IP adresi saklanmaz; yalnızca ülke bilgisi tutulur.
+      Yönlendiren site bilgisini tarayıcı göndermediğinde &quot;bilinmiyor&quot; yazar.
+    </p>
+
+  </div>
+</main>
+
+<footer>
+  <div class="kap">Tık — Cloudflare Workers üzerinde çalışır.</div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var GUN = 86400000;
+  var params = new URLSearchParams(location.search);
+  var kod = params.get("kod") || "";
+  var jeton = params.get("t") || "";
+
+  var el = function(id){ return document.getElementById(id); };
+
+  function hataGoster(baslik, metin){
+    el("yukleniyor").hidden = true;
+    el("icerik").hidden = true;
+    el("hata").hidden = false;
+    if (baslik) { el("hataBaslik").textContent = baslik; }
+    if (metin)  { el("hataMetin").textContent = metin; }
+  }
+
+  if (!kod || !jeton) {
+    hataGoster(null, null);
+    return;
+  }
+
+  function gunAnahtari(d){
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  function kisaTarih(iso){
+    var p = iso.split("-");
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    return d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+  }
+
+  /* API yalnızca tıklama olan günleri döndürüyor.
+     Grafik yanıltmasın diye aradaki boş günleri sıfırla dolduruyoruz. */
+  function otuzGunDoldur(gelen){
+    var harita = {};
+    (gelen || []).forEach(function(s){ harita[s.gun] = s.n; });
+
+    var dizi = [];
+    var bugun = new Date();
+    bugun.setHours(0, 0, 0, 0);
+    for (var i = 29; i >= 0; i--) {
+      var g = new Date(bugun.getTime() - i * GUN);
+      var a = gunAnahtari(g);
+      dizi.push({ gun: a, n: harita[a] || 0 });
+    }
+    return dizi;
+  }
+
+  function grafigiCiz(gunler){
+    var grafik = el("grafik");
+    var ipucu  = el("ipucu");
+    var enCok  = gunler.reduce(function(m, g){ return Math.max(m, g.n); }, 0);
+    /* Ölçek tepeye yapışmasın; en az 1 olsun ki sıfır bölme olmasın. */
+    var tavan = Math.max(1, enCok);
+
+    /* Izgara: 0 ve tavan yeter, araya bir orta çizgi. */
+    var izgara = el("izgara");
+    izgara.textContent = "";
+    [0, 0.5, 1].forEach(function(oran){
+      var c = document.createElement("span");
+      c.style.top = ((1 - oran) * 100) + "%";
+      var etiketDeger = Math.round(tavan * oran);
+      var b = document.createElement("b");
+      b.style.top = ((1 - oran) * 100) + "%";
+      b.textContent = etiketDeger;
+      izgara.appendChild(c);
+      izgara.appendChild(b);
+    });
+
+    gunler.forEach(function(g){
+      var sutun = document.createElement("div");
+      sutun.className = "sutun" + (g.n === 0 ? " bos" : "");
+      var cubuk = document.createElement("i");
+      cubuk.style.height = (g.n === 0 ? 0 : Math.max(4, (g.n / tavan) * 100)) + "%";
+      sutun.appendChild(cubuk);
+
+      sutun.addEventListener("mouseenter", function(){
+        ipucu.textContent = "";
+        ipucu.appendChild(document.createTextNode(kisaTarih(g.gun) + " · "));
+        var s = document.createElement("span");
+        s.className = "sayi";
+        s.textContent = g.n;
+        ipucu.appendChild(s);
+        ipucu.appendChild(document.createTextNode(" tıklama"));
+
+        var kutu = sutun.getBoundingClientRect();
+        var kap  = grafik.parentNode.getBoundingClientRect();
+        ipucu.style.left = (kutu.left - kap.left + kutu.width / 2) + "px";
+        ipucu.style.top  = (kutu.top - kap.top - 8) + "px";
+        ipucu.classList.add("acik");
+      });
+      sutun.addEventListener("mouseleave", function(){
+        ipucu.classList.remove("acik");
+      });
+
+      grafik.appendChild(sutun);
+    });
+
+    /* X ekseni: sadece üç etiket — çakışma olmasın. */
+    var eksen = el("xEkseni");
+    eksen.textContent = "";
+    [0, 15, 29].forEach(function(i){
+      var s = document.createElement("span");
+      s.textContent = kisaTarih(gunler[i].gun);
+      eksen.appendChild(s);
+    });
+
+    /* Tablo görünümü — renge bakmadan da okunabilsin. */
+    var govde = el("tabloGovde");
+    gunler.forEach(function(g){
+      var tr = document.createElement("tr");
+      var td1 = document.createElement("td");
+      td1.textContent = kisaTarih(g.gun);
+      var td2 = document.createElement("td");
+      td2.className = "sayi";
+      td2.textContent = g.n;
+      tr.appendChild(td1); tr.appendChild(td2);
+      govde.appendChild(tr);
+    });
+
+    return enCok;
+  }
+
+  function listeCiz(hedefId, bosId, satirlar, bosAd){
+    var liste = el(hedefId);
+    liste.textContent = "";
+    var dolu = (satirlar || []).filter(function(s){ return s.n > 0; });
+    if (!dolu.length) { el(bosId).hidden = false; return; }
+
+    var enCok = dolu.reduce(function(m, s){ return Math.max(m, s.n); }, 1);
+    dolu.forEach(function(s){
+      var li = document.createElement("li");
+      var satir = document.createElement("div");
+      satir.className = "satir";
+      var ad = document.createElement("span");
+      ad.className = "ad";
+      ad.textContent = s.ad || bosAd;
+      var n = document.createElement("span");
+      n.className = "n";
+      n.textContent = s.n;
+      satir.appendChild(ad); satir.appendChild(n);
+
+      var cubuk = document.createElement("div");
+      cubuk.className = "cubuk";
+      var ic = document.createElement("i");
+      ic.style.width = Math.max(3, (s.n / enCok) * 100) + "%";
+      cubuk.appendChild(ic);
+
+      li.appendChild(satir); li.appendChild(cubuk);
+      liste.appendChild(li);
+    });
+  }
+
+  fetch("/api/istatistik?kod=" + encodeURIComponent(kod) + "&t=" + encodeURIComponent(jeton))
+    .then(function(cevap){
+      return cevap.json().then(function(veri){ return { ok: cevap.ok, veri: veri }; });
+    })
+    .then(function(sonuc){
+      if (!sonuc.ok) { hataGoster(null, sonuc.veri.hata || null); return; }
+      var v = sonuc.veri;
+
+      el("yukleniyor").hidden = true;
+      el("icerik").hidden = false;
+
+      el("baslik").textContent = v.baslik || v.hedef;
+      el("kisaBag").textContent = (location.host || "tik.workers.dev") + "/" + v.kod;
+      var hedefBag = el("hedefBag");
+      hedefBag.href = v.hedef;
+      hedefBag.textContent = v.hedef;
+
+      var gunler = otuzGunDoldur(v.gunluk);
+      var bugunKey = gunAnahtari(new Date());
+      var bugun = gunler[gunler.length - 1].n;
+      var hafta = gunler.slice(-7).reduce(function(t, g){ return t + g.n; }, 0);
+
+      el("dToplam").textContent = v.toplam;
+      el("dHafta").textContent = hafta;
+      el("dBugun").textContent = bugun;
+      el("dHaftaAlt").textContent = bugunKey ? "son 7 günün toplamı" : "";
+
+      if (v.olusturma) {
+        var d = new Date(v.olusturma * 1000);
+        el("dTarih").textContent = d.toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" });
+        var gunSayisi = Math.max(0, Math.floor((Date.now() - d.getTime()) / GUN));
+        el("dYas").textContent = gunSayisi === 0 ? "bugün" : gunSayisi + " gün önce";
+      }
+
+      var enCok = grafigiCiz(gunler);
+      el("grafikAciklama").textContent = "En yoğun gün: " + enCok + " tıklama";
+      el("grafikOzet").textContent = v.toplam === 0
+        ? "Bu bağlantıya henüz tıklanmadı. Paylaştıktan sonra sayılar burada görünecek."
+        : "Son 30 günde " + gunler.reduce(function(t, g){ return t + g.n; }, 0) + " tıklama.";
+
+      listeCiz("ulkeler", "ulkelerBos", v.ulkeler, "bilinmiyor");
+      listeCiz("yonlendirenler", "yonlendirenlerBos", v.yonlendirenler, "doğrudan / bilinmiyor");
+    })
+    .catch(function(){
+      hataGoster("İstatistik alınamadı", "Sunucuya ulaşılamadı. Sayfayı yenileyip tekrar dene.");
+    });
+
+  el("tabloDugme").addEventListener("click", function(){
+    var sarmal = el("tabloSarmal");
+    var acik = !sarmal.hidden;
+    sarmal.hidden = acik;
+    this.setAttribute("aria-expanded", String(!acik));
+    this.textContent = acik ? "Tabloyu göster" : "Tabloyu gizle";
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+name = "tik"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# Tanıtım sayfası ve istatistik sayfası statik dosya olarak sunulur.
+# run_worker_first: kısa kodlar ("/a7f3k2") kök dizinde olduğu için
+# istek önce Worker'a gelmeli, eşleşmezse dosyalara düşmeli.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+
+# Veritabanı. database_id "wrangler d1 create tik" komutundan gelir.
+[[d1_databases]]
+binding = "DB"
+database_name = "tik"
+database_id = "BURAYA-D1-ID-GELECEK"
+
+[vars]
+# Zararlı bağlantı kontrolü ve bot koruması anahtar yoksa atlanır;
+# uygulama yine çalışır, sadece o kontroller devre dışı kalır.
+# Gizli değerler buraya YAZILMAZ. Yerelde .dev.vars, canlıda:
+#   wrangler secret put SAFE_BROWSING_API_KEY
+#   wrangler secret put TURNSTILE_SECRET_KEY
+TURNSTILE_SITE_KEY = ""

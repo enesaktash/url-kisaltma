@@ -1,0 +1,20 @@
+# Ornek ortam degiskenleri (Cloudflare Workers yerel gelistirme).
+#
+# Kullanim:
+#   1. Bu dosyayi ".dev.vars" adiyla kopyala
+#   2. Degerleri doldur
+#   3. ".dev.vars" ASLA commit edilmez (.gitignore'da tanimli)
+#
+# Canliya alirken bu dosya sunucuya yuklenmez. Gizli degerler soyle girilir:
+#   wrangler secret put SAFE_BROWSING_API_KEY
+#   wrangler secret put TURNSTILE_SECRET_KEY
+
+# --- Google Safe Browsing: zararli baglanti kontrolu ---
+# Google Cloud Console > APIs & Services > Library > Safe Browsing API > Enable
+# Bos birakilirsa kontrol atlanir, uygulama yine calisir.
+SAFE_BROWSING_API_KEY=
+
+# --- Cloudflare Turnstile: bot korumasi ---
+# Bos birakilirsa dogrulama atlanir.
+# Site anahtari wrangler.toml icindeki [vars] bolumune yazilir (herkese acik olmasi normaldir).
+TURNSTILE_SECRET_KEY=
