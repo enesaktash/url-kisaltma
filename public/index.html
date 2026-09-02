@@ -749,6 +749,11 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
       body: JSON.stringify({ url: deger })
     })
     .then(function(cevap){
+      /* Statik dağıtımda /api/kisalt diye bir şey yok; sunucu JSON yerine
+         HTML 404 döner. Bunu "sunucuya ulaşılamadı" diye göstermek yanıltıcı
+         olurdu, ayrı bir mesaj veriyoruz. */
+      var tur = cevap.headers.get("content-type") || "";
+      if (tur.indexOf("json") === -1) { throw new Error("api-bagli-degil"); }
       return cevap.json().then(function(veri){
         return { ok: cevap.ok, veri: veri };
       });
@@ -777,8 +782,14 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
       kopyala.textContent = "Kopyala";
       sonuc.hidden = false;
     })
-    .catch(function(){
-      hataGoster("Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.");
+    .catch(function(e){
+      if (e && e.message === "api-bagli-degil") {
+        hataGoster("Bu sayfa şu an yalnızca tanıtım olarak yayında \u2014 " +
+                   "kısaltma servisi bağlı değil, adresin hiçbir yere gönderilmedi. " +
+                   "Servisi çalıştırmak için depodaki KURULUM.md dosyasına bak.");
+      } else {
+        hataGoster("Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.");
+      }
     })
     .then(function(){
       buton.disabled = false;

@@ -435,6 +435,8 @@ footer{
 
   fetch("/api/istatistik?kod=" + encodeURIComponent(kod) + "&t=" + encodeURIComponent(jeton))
     .then(function(cevap){
+      var tur = cevap.headers.get("content-type") || "";
+      if (tur.indexOf("json") === -1) { throw new Error("api-bagli-degil"); }
       return cevap.json().then(function(veri){ return { ok: cevap.ok, veri: veri }; });
     })
     .then(function(sonuc){
@@ -476,8 +478,14 @@ footer{
       listeCiz("ulkeler", "ulkelerBos", v.ulkeler, "bilinmiyor");
       listeCiz("yonlendirenler", "yonlendirenlerBos", v.yonlendirenler, "doğrudan / bilinmiyor");
     })
-    .catch(function(){
-      hataGoster("İstatistik alınamadı", "Sunucuya ulaşılamadı. Sayfayı yenileyip tekrar dene.");
+    .catch(function(e){
+      if (e && e.message === "api-bagli-degil") {
+        hataGoster("Servis bağlı değil",
+          "Bu sayfa yalnızca tanıtım olarak yayında; istatistik servisi çalışmıyor. " +
+          "Servisi çalıştırmak için depodaki KURULUM.md dosyasına bak.");
+      } else {
+        hataGoster("İstatistik alınamadı", "Sunucuya ulaşılamadı. Sayfayı yenileyip tekrar dene.");
+      }
     });
 
   el("tabloDugme").addEventListener("click", function(){
