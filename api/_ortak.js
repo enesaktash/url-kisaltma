@@ -1,5 +1,5 @@
 /**
- * Tık — Vercel Functions için ortak yardımcılar.
+ * Kısayol — Vercel Functions için ortak yardımcılar.
  *
  * Depo: Upstash Redis (REST API). Paket kurulmuyor, sadece fetch kullanılıyor.
  * Anahtarlar ortam değişkeninden okunur, kodda gömülü değildir.
@@ -162,7 +162,7 @@ export async function zararliMi(adres) {
   if (!anahtar) return { zararli: false, atlandi: true };
 
   const govde = {
-    client: { clientId: "tik", clientVersion: "1.0.0" },
+    client: { clientId: "kisayol", clientVersion: "1.0.0" },
     threatInfo: {
       threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE"],
       platformTypes: ["ANY_PLATFORM"],
@@ -197,7 +197,7 @@ export async function zararliMi(adres) {
 export async function basligiOku(adres) {
   try {
     const cevap = await fetch(adres, {
-      headers: { "user-agent": "TikBot/1.0 (+kisa baglanti onizlemesi)" },
+      headers: { "user-agent": "KisayolBot/1.0 (+kisa baglanti onizlemesi)" },
       redirect: "follow",
       signal: AbortSignal.timeout(2500),
     });

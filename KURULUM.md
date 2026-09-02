@@ -1,6 +1,6 @@
-# Tık — kurulum
+# Kısayol — kurulum
 
-Sıfır lira. Alan adı satın alınmıyor; adres `https://tik.<kullanıcı-adın>.workers.dev`
+Sıfır lira. Alan adı satın alınmıyor; adres `https://kisayol.<kullanıcı-adın>.workers.dev`
 olacak. Kredi kartı istenmiyor.
 
 Bir uyarı baştan: **ürettiğin kısa bağlantı `workers.dev` adresiyle uzun görünür.**
@@ -37,7 +37,7 @@ Tarayıcı açılır, onay verirsin.
 ## 3. Veritabanını oluştur
 
 ```bash
-npx wrangler d1 create tik
+npx wrangler d1 create kisayol
 ```
 
 Komut şuna benzer bir çıktı verir:

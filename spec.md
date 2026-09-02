@@ -1,4 +1,4 @@
-# spec.md — Tık
+# spec.md — Kısayol
 
 Kısa link üretme ve tıklama sayma uygulaması.
 
@@ -279,7 +279,7 @@ bir ürüne dönüşürse hepsi yeniden ele alınmalı.
 
 | Konu | Değer | Nasıl belirlendi |
 |---|---|---|
-| Ürün adı | Tık | Seçildi — marka tescili araştırılmadı |
+| Ürün adı | Kısayol | Seçildi — marka tescili araştırılmadı |
 | Alan adı | `<worker>.workers.dev` | Ücretsiz; kısa alan adı alınmadı |
 | Barındırma ve veritabanı | Cloudflare Workers + D1 | Ülke bilgisi ücretsiz geldiği için |
 | İletişim adresi | `merhaba@tik.co` | Örnek |

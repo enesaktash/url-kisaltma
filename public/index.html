@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tık — Bağlantını kısalt, kaç tıklama aldığını gör</title>
+<title>Kısayol — Bağlantını kısalt, kaç tıklama aldığını gör</title>
 <meta name="description" content="Uzun bir bağlantıyı kısaltır ve kaç kez tıklandığını gösterir. Hesap gerekmez. Başka hiçbir şey yapmaz.">
 <meta name="theme-color" content="#08080b">
 <style>
 /* ---------------------------------------------------------------
-   Tık — tek dosya tanıtım sayfası
+   Kısayol — tek dosya tanıtım sayfası
    Harici istek yok: font, CDN, analitik, görsel — hiçbiri.
    Tema: koyu zemin, sıcak degrade vurgu (amber → mercan → magenta)
    --------------------------------------------------------------- */
@@ -455,7 +455,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
           <path d="M8.4 13.6 7 15a3.4 3.4 0 0 1-4.8-4.8l1.4-1.4" stroke="#160b06" stroke-width="1.9" stroke-linecap="round"/>
         </svg>
       </span>
-      Tık
+      Kısayol
     </a>
     <nav class="gezinme" aria-label="Sayfa içi">
       <a href="#nasil">Nasıl çalışır</a>
@@ -523,7 +523,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
             <span class="satir-ad">Aldığın adres</span>
             <span class="sayac" id="sayacKisa">&nbsp;</span>
           </div>
-          <div class="url kisa" id="ornekKisa">tik.co/<b>a7f3k2</b></div>
+          <div class="url kisa" id="ornekKisa">kisayol.vercel.app/<b>a7f3k2</b></div>
           <div class="olcu vurgu"><i id="olcuKisa" style="--w:17%"></i></div>
         </div>
       </div>
@@ -639,7 +639,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
         <p>Vercel ve Upstash&#39;in ücretsiz katmanlarında çalışıyor. Bize maliyeti olmadığı için senden de ücret almıyoruz.</p>
       </div>
       <div class="fiyat-kutu">
-        <span class="plan-ad">Tık — tek plan</span>
+        <span class="plan-ad">Kısayol — tek plan</span>
         <p class="fiyat-rakam"><span class="tutar">0 ₺</span><span class="birim">/ ay</span></p>
         <ul>
           <li><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m3 8.4 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Hesap yok, kart yok, deneme süresi yok</span></li>
@@ -657,7 +657,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
   <div class="kap">
     <div class="alt-izgara">
       <div>
-        <h4>Tık</h4>
+        <h4>Kısayol</h4>
         <p>
           Kısa bağlantı üretir ve kaç tıklama aldığını gösterir.
           Tek kişilik işler için, tek iş yapan bir araç.
@@ -681,7 +681,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
       </div>
     </div>
     <p class="telif">
-      <span>Tık — Vercel üzerinde çalışır.</span>
+      <span>Kısayol — Vercel üzerinde çalışır.</span>
       <span>Örnek proje</span>
     </p>
   </div>
@@ -693,7 +693,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
 
   /* Kısa bağlantının önüne gelecek adres: sayfa hangi alan adında
      çalışıyorsa o. Dosyadan açıldığında örnek bir ad kullanılır. */
-  var HOST = location.host || "tik.workers.dev";
+  var HOST = location.host || "kisayol.vercel.app";
 
   /* Örnek gösterimdeki karakter sayıları metnin kendisinden okunur;
      elle yazılmış (ve yanlış olabilecek) bir rakam kalmasın. */

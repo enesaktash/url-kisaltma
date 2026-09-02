@@ -1,4 +1,4 @@
-# Tık
+# Kısayol
 
 Uzun bir bağlantıyı kısaltır ve o bağlantıya kaç kez tıklandığını gösterir.
 Yaptığı iş bu. Kampanya paneli, dönüşüm hunisi, ekip yönetimi yok.

@@ -1,4 +1,4 @@
--- Tık — veritabanı şeması (Cloudflare D1 / SQLite)
+-- Kısayol — veritabanı şeması (Cloudflare D1 / SQLite)
 -- Kurulum:  wrangler d1 execute tik --remote --file=./schema.sql
 
 -- Kısa bağlantılar

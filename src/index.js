@@ -1,5 +1,5 @@
 /**
- * Tık — kısa bağlantı üretir ve tıklamaları sayar.
+ * Kısayol — kısa bağlantı üretir ve tıklamaları sayar.
  *
  * Yollar:
  *   POST /api/kisalt            → yeni kısa bağlantı üretir
@@ -93,7 +93,7 @@ async function zararliMi(adres, anahtar) {
   if (!anahtar) return { zararli: false, atlandi: true };
 
   const govde = {
-    client: { clientId: "tik", clientVersion: "1.0.0" },
+    client: { clientId: "kisayol", clientVersion: "1.0.0" },
     threatInfo: {
       threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE"],
       platformTypes: ["ANY_PLATFORM"],
@@ -153,7 +153,7 @@ async function turnstileGecerliMi(jeton, gizli, ip) {
 async function basligiOku(adres) {
   try {
     const cevap = await fetch(adres, {
-      headers: { "user-agent": "TikBot/1.0 (+kisa baglanti onizlemesi)" },
+      headers: { "user-agent": "KisayolBot/1.0 (+kisa baglanti onizlemesi)" },
       redirect: "follow",
       signal: AbortSignal.timeout(5000),
     });
