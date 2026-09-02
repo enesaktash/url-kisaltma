@@ -1,6 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "public",
-  "cleanUrls": true,
-  "trailingSlash": false
+  "installCommand": "npm install --omit=dev",
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/:kod([a-z0-9]{6})", "destination": "/api/git?kod=:kod" }
+  ]
 }

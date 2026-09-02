@@ -118,17 +118,25 @@ reCAPTCHA yerine bu tercih edildi.
 
 ### 3.4 Altyapı — karar verildi ve kuruldu
 
+**Canlıdaki sürüm Vercel üzerinde çalışıyor.**
+
 | İhtiyaç | Seçim | Durum |
 |---|---|---|
-| Barındırma + yönlendirme | Cloudflare Workers | Kuruldu (`src/index.js`) |
-| Veri saklama | Cloudflare D1 | Kuruldu (`schema.sql`) |
-| Alan adı | `<worker>.workers.dev` | Ücretsiz alt alan adı |
+| Barındırma + yönlendirme | Vercel Functions | Kuruldu (`api/`) |
+| Veri saklama | Upstash Redis (REST) | Kuruldu, ücretsiz katman |
+| Alan adı | `<proje>.vercel.app` | Ücretsiz alt alan adı |
 
-Ülke bilgisi Cloudflare tarafında istek başlığından ücretsiz geldiği için
-bu taraf seçildi.
+Upstash seçildi çünkü REST API'si var: hiçbir paket kurmadan, yalnızca
+`fetch` ile konuşuluyor. Projenin çalışma zamanı bağımlılığı yok.
+Ülke bilgisi Vercel'in `x-vercel-ip-country` başlığından ücretsiz geliyor.
 
-**Bilinçli taviz:** Alan adı satın alınmadığı için üretilen kısa bağlantı
-`workers.dev` uzantısıyla uzun görünür. Servis eksiksiz çalışır ama "kısa
+**İkinci sürüm:** Aynı uygulamanın Cloudflare Workers + D1 hâli
+`src/index.js` ve `schema.sql` dosyalarında duruyor. İkisi aynı API
+biçimini konuşur, `public/` altındaki sayfalar ikisiyle de değişmeden
+çalışır. Depoları ayrıdır: bir tarafta üretilen bağlantı diğerinde bulunmaz.
+
+**Bilinçli taviz:** Kısa alan adı satın alınmadığı için üretilen bağlantı
+`vercel.app` uzantısıyla uzun görünür. Servis eksiksiz çalışır ama "kısa
 link" iddiası ancak kendi alan adı alınınca tam karşılanır. Alan adı
 projedeki tek masraf kalemidir.
 
@@ -140,16 +148,21 @@ projedeki tek masraf kalemidir.
 tutulur, `.env` sürüm kontrolüne girmez. Depoda yalnızca `.env.example`
 bulunur — içi boş, sadece hangi değişkenlerin gerektiğini gösterir.
 
-| Değişken | Nerede kullanılır | Tarayıcıya düşer mi |
-|---|---|---|
-| `WEB_RISK_API_KEY` | Sunucu — zararlı URL kontrolü | Hayır |
-| `TURNSTILE_SECRET_KEY` | Sunucu — bot doğrulaması | Hayır |
-| `TURNSTILE_SITE_KEY` | Sayfa — widget'ı çizmek için | Evet (zaten herkese açık olması normal) |
-| `DATABASE_URL` | Sunucu — veri bağlantısı | Hayır |
+| Değişken | Nerede kullanılır | Zorunlu mu | Tarayıcıya düşer mi |
+|---|---|---|---|
+| `UPSTASH_REDIS_REST_URL` | Sunucu — depo adresi | Evet | Hayır |
+| `UPSTASH_REDIS_REST_TOKEN` | Sunucu — depo anahtarı | Evet | Hayır |
+| `SAFE_BROWSING_API_KEY` | Sunucu — zararlı URL kontrolü | Hayır | Hayır |
+| `TURNSTILE_SECRET_KEY` | Sunucu — bot doğrulaması (yalnızca Workers sürümü) | Hayır | Hayır |
+
+Zorunlu iki değişken tanımlı değilse uygulama çökmez; API `503` ile
+"depo bağlı değil" der ve hangi değişkenlerin eksik olduğunu yazar.
+İsteğe bağlı olanlar tanımlı değilse ilgili kontrol atlanır.
 
 Yayına alırken bu değerler barındırma sağlayıcısının ortam değişkenleri
-ekranına girilir (Cloudflare Workers Secrets veya Vercel Environment
-Variables). Dosya olarak sunucuya yüklenmez.
+ekranına girilir (Vercel: Settings → Environment Variables; Cloudflare:
+`wrangler secret put`). Dosya olarak sunucuya yüklenmez. Depoda yalnızca
+`.env.example` ve `.dev.vars.example` bulunur, ikisinin de içi boştur.
 
 ### 3.6 API gerektirmeyen ek veriler
 

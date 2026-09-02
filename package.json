@@ -11,5 +11,9 @@
   },
   "devDependencies": {
     "wrangler": "^4"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18"
   }
 }
