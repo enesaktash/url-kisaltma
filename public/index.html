@@ -244,6 +244,15 @@ input[aria-invalid=true]{ border-color:var(--a3); }
   text-align:left; font-family:var(--mono); font-size:.8125rem;
   box-shadow:0 30px 70px -34px rgba(0,0,0,.95);
 }
+/* Bu kutu sabit bir gösterim; gerçek sonuç değil. Etiket olmayınca
+   hem insan hem otomatik test onu üretilmiş bağlantı sanabiliyor. */
+.ornek-etiket{
+  display:inline-block; margin:0 0 1.25rem;
+  font-family:var(--mono); font-size:.6875rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--fg-faint);
+  border:1px solid var(--line-2); border-radius:99px;
+  padding:.3rem .75rem;
+}
 .satir + .satir{
   margin-top:1.4rem; padding-top:1.4rem;
   border-top:1px solid rgba(255,255,255,.05);
@@ -571,6 +580,7 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
       </div>
 
       <div class="gosterim gir g6" aria-label="Kısaltma örneği">
+        <p class="ornek-etiket">Örnek gösterim</p>
         <div class="satir">
           <div class="satir-ust">
             <span class="satir-ad">Girdiğin adres</span>
