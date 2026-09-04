@@ -276,6 +276,59 @@ input[aria-invalid=true]{ border-color:var(--a3); }
 .olcu.vurgu i{ background:var(--grad); animation-delay:.6s; }
 @keyframes uzat{ to{ width:var(--w,100%); } }
 
+/* ============ bu tarayıcıdaki geçmiş ============ */
+.gecmis-kutu{
+  margin:clamp(1.5rem,4vw,2rem) auto 0; max-width:47rem;
+  border:1px solid var(--line-2); border-radius:var(--r);
+  background:var(--card); padding:clamp(1.15rem,3.5vw,1.6rem);
+  text-align:left;
+}
+.gecmis-ust{
+  display:flex; flex-wrap:wrap; align-items:baseline;
+  justify-content:space-between; gap:.6rem;
+}
+.gecmis-ust .ad{
+  font-family:var(--mono); font-size:.6875rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--fg-faint);
+}
+.link-buton{
+  font-family:inherit; font-size:.8125rem; font-weight:600;
+  color:var(--fg-dim); background:none; border:0; padding:0;
+  cursor:pointer; text-decoration:underline; text-underline-offset:.2em;
+  transition:color .16s;
+}
+.link-buton:hover{ color:var(--a2); }
+.gecmis-liste{ list-style:none; margin:1rem 0 0; padding:0; }
+.gecmis-satir{ padding:.85rem 0; }
+.gecmis-satir + .gecmis-satir{ border-top:1px solid rgba(255,255,255,.05); }
+.gecmis-satir-ust{
+  display:flex; flex-wrap:wrap; align-items:baseline;
+  justify-content:space-between; gap:.5rem 1rem;
+}
+.gecmis-kisa{
+  font-family:var(--mono); font-size:.9375rem; font-weight:700;
+  letter-spacing:-.01em; color:var(--fg); text-decoration:none;
+  word-break:break-all;
+}
+.gecmis-kisa:hover{ color:var(--a2); }
+.gecmis-zaman{
+  font-family:var(--mono); font-size:.75rem; color:var(--fg-faint);
+  white-space:nowrap;
+}
+.gecmis-hedef{
+  margin-top:.3rem; font-size:.8125rem; color:var(--fg-dim);
+  word-break:break-all; line-height:1.5;
+  /* çok uzun adres kutuyu şişirmesin: iki satırda kesilir */
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+  overflow:hidden;
+}
+.gecmis-ist{
+  display:inline-block; margin-top:.4rem;
+  font-size:.8125rem; font-weight:600; color:var(--fg-dim);
+  text-decoration:none; border-bottom:1px solid var(--line-2);
+}
+.gecmis-ist:hover{ color:var(--a2); border-color:currentColor; }
+
 /* ============ bölümler ============ */
 section{ padding-block:clamp(3rem,6vw,4.5rem); }
 /* koyu şerit — bölümler arası tekdüzeliği kırar */
@@ -507,9 +560,17 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
           <p class="not" id="sonucNot"></p>
         </div>
         <p class="not" id="hataNot" hidden></p>
+
+        <div class="gecmis-kutu gir g5" id="gecmisKutu" hidden>
+          <div class="gecmis-ust">
+            <span class="ad" id="gecmisBaslik">Bu tarayıcıda oluşturduğun bağlantılar</span>
+            <button class="link-buton" type="button" id="gecmisTemizle">Geçmişi temizle</button>
+          </div>
+          <ul class="gecmis-liste" id="gecmisListe" aria-labelledby="gecmisBaslik"></ul>
+        </div>
       </div>
 
-      <div class="gosterim gir g5" aria-label="Kısaltma örneği">
+      <div class="gosterim gir g6" aria-label="Kısaltma örneği">
         <div class="satir">
           <div class="satir-ust">
             <span class="satir-ad">Girdiğin adres</span>
@@ -723,6 +784,80 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
   var istBag   = document.getElementById("istatistikBag");
   var sonKisa  = "";
 
+  /* ---- bu tarayıcıdaki geçmiş: hesap yok, o yüzden istatistik bağlantısı
+     bir daha bulunamıyordu. Son 10 kaydı yalnızca bu cihazda, localStorage'da
+     tutuyoruz. Sunucuya hiçbir şey gönderilmez. ---- */
+  var GECMIS_ANAHTAR = "kisayolGecmis";
+  var gecmisKutu    = document.getElementById("gecmisKutu");
+  var gecmisListe   = document.getElementById("gecmisListe");
+  var gecmisTemizle = document.getElementById("gecmisTemizle");
+
+  function gecmisOku(){
+    try {
+      var liste = JSON.parse(localStorage.getItem(GECMIS_ANAHTAR) || "[]");
+      return Array.isArray(liste) ? liste : [];
+    } catch (e) { return []; }
+  }
+
+  function gecmisYaz(liste){
+    try { localStorage.setItem(GECMIS_ANAHTAR, JSON.stringify(liste.slice(0, 10))); }
+    catch (e) { /* localStorage kapalıysa (gizli sekme vb.) sessizce geç */ }
+  }
+
+  function gecmisCiz(){
+    var liste = gecmisOku();
+    gecmisListe.textContent = "";
+    if (!liste.length) { gecmisKutu.hidden = true; return; }
+    gecmisKutu.hidden = false;
+    liste.forEach(function(kayit){
+      var li = document.createElement("li");
+      li.className = "gecmis-satir";
+
+      var ust = document.createElement("div");
+      ust.className = "gecmis-satir-ust";
+
+      var kisaA = document.createElement("a");
+      kisaA.className = "gecmis-kisa";
+      kisaA.href = kayit.kisa; kisaA.target = "_blank"; kisaA.rel = "noopener";
+      kisaA.textContent = kayit.kisa.replace(/^https?:\/\//, "");
+
+      var zaman = document.createElement("span");
+      zaman.className = "gecmis-zaman";
+      zaman.textContent = kayit.zamanMetin || "";
+
+      ust.appendChild(kisaA);
+      ust.appendChild(zaman);
+
+      var hedef = document.createElement("div");
+      hedef.className = "gecmis-hedef";
+      hedef.textContent = kayit.hedef;
+
+      var istA = document.createElement("a");
+      istA.className = "gecmis-ist";
+      istA.href = kayit.istatistik; istA.target = "_blank"; istA.rel = "noopener";
+      istA.textContent = "İstatistiği aç";
+
+      li.appendChild(ust);
+      li.appendChild(hedef);
+      li.appendChild(istA);
+      gecmisListe.appendChild(li);
+    });
+  }
+
+  function gecmiseEkle(kayit){
+    var liste = gecmisOku().filter(function(k){ return k.kod !== kayit.kod; });
+    liste.unshift(kayit);
+    gecmisYaz(liste);
+    gecmisCiz();
+  }
+
+  gecmisTemizle.addEventListener("click", function(){
+    try { localStorage.removeItem(GECMIS_ANAHTAR); } catch (e) {}
+    gecmisCiz();
+  });
+
+  gecmisCiz();
+
   function hataGoster(mesaj){
     sonuc.hidden = true;
     hataNot.hidden = false;
@@ -781,6 +916,17 @@ footer a:hover{ color:var(--a2); border-color:currentColor; }
           : "");
       kopyala.textContent = "Kopyala";
       sonuc.hidden = false;
+
+      var zamanMetin = "";
+      try { zamanMetin = new Date().toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" }); }
+      catch (e) {}
+      gecmiseEkle({
+        kod: sonucVerisi.veri.kod,
+        kisa: sonKisa,
+        hedef: deger,
+        istatistik: sonucVerisi.veri.istatistik,
+        zamanMetin: zamanMetin
+      });
     })
     .catch(function(e){
       if (e && e.message === "api-bagli-degil") {
